@@ -1,2 +1,2 @@
 # alejandroba
-repositorio para Programación de servicios y procesos
+repositorio para Programacion de servicios y procesos

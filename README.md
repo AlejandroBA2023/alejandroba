@@ -1,2 +1,5 @@
 # alejandroba
-repositorio para Programacion de servicios y procesos
+---
+- **nombre:**  *Alejandro Bermejo Álvarez*
+- **Email:**  *alejandroba@iescastelar.com*
+- **Modulo Formativo:**  *PSP*

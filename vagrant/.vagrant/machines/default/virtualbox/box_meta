@@ -1,1 +1,1 @@
-{"name":"ubuntu/trusty64","version":"20190514.0.0","provider":"virtualbox","directory":"boxes/ubuntu-VAGRANTSLASH-trusty64/20190514.0.0/virtualbox"}
+{"name":"Ecodev/ubuntu-server-2204","version":"1.0.20220906184154","provider":"virtualbox","directory":"boxes/Ecodev-VAGRANTSLASH-ubuntu-server-2204/1.0.20220906184154/virtualbox"}

@@ -1,9 +1,11 @@
+import java.util.Random;
+
 public class Main{
         public static void main(String[] args){
                 try {
                         //ProcessBuilder pb = new ProcessBuilder("/vagrant/procesos1/esperarNsegundos.sh", "4");
                         //Process p = pb.start();
-                        Process p = Runtime.getRuntime().exec("/bin/kate");
+                        Process p = Runtime.getRuntime().exec("/bin/bash esperarNsegundos.sh " + args[0]);
                         while (p.isAlive()) {
                             letraAleatoria();
                         }
@@ -15,18 +17,19 @@ public class Main{
 
         }
 
+                
         private static void letraAleatoria() {
-        int leftLimit = 97; // letter 'a'
-        int rightLimit = 122; // letter 'z'
-        int targetStringLength = 1;
-        Random random = new Random();
+            int leftLimit = 97; // letter 'a'
+            int rightLimit = 122; // letter 'z'
+            int targetStringLength = 1;
+            Random random = new Random();
 
-        String generatedString = random.ints(leftLimit, rightLimit + 1)
-                .limit(targetStringLength)
-                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString();
+            String generatedString = random.ints(leftLimit, rightLimit + 1)
+                    .limit(targetStringLength)
+                    .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                    .toString();
 
-        System.out.println(generatedString);
-    }
+            System.out.print(generatedString);
+        }
 
 }

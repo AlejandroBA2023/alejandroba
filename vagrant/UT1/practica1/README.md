@@ -9,9 +9,17 @@ El script `esperarNsegundos.sh` recibe como argumento un entero, el número de s
 ---
 Me he dado cuenta de un error proveniente del archivo `esperarNsegundos.sh`: 
 
-El error consiste en que si se hace alguna modificacion y se guarda desde un SO Widows, es muy probable que deje de funcionar.
+El error consiste en que si se hace alguna modificacion y se guarda desde un **SO Widows**, es muy probable que deje de funcionar.
 
 Investigando, me he dado cuenta de que se puede arreglar mediante el siguiente comando:
 ```sh
 sed -i -e 's/\r$//' esperarNsegundos.sh
+```
+
+---
+
+Salida del ejercicio almacenada mediante `tee` en **salida.txt**
+
+```sh
+java Main 1 | tee salida.txt
 ```

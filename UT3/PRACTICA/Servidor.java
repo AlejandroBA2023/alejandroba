@@ -1,5 +1,8 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -19,17 +22,30 @@ public class Servidor {
                 cli[i] = srv.accept();
                 System.out.println("El cliente " + (i + 1) + " se ha conectado");
                 System.out.println("-----------------------------------------");
+            }
+
+            MessageGestor[] messageGestors = new MessageGestor[2];
+            messageGestors[0] = new MessageGestor(cli[0], cli[1]);
+            messageGestors[1] = new MessageGestor(cli[1], cli[0]);
+
+            for (MessageGestor messageGestor : messageGestors) {
+                messageGestor.start();
+            }
+
+            while (messageGestors[0].isAlive() && messageGestors[1].isAlive()) {
 
             }
 
-            while (true) {
-
+            for (MessageGestor messageGestor : messageGestors) {
+                try {
+                    messageGestor.end();
+                } catch (Exception e) {
+                    ;
+                }
             }
 
             for (Socket socket : cli) {
-                new DataOutputStream(socket.getOutputStream()).writeUTF("Se ha cerrado la conexion");
-                new DataOutputStream(socket.getOutputStream()).writeUTF("CLOSE");
-                socket.close();
+                ;
             }
         } catch (Exception e) {
             // TODO: handle exception
@@ -38,7 +54,47 @@ public class Servidor {
 }
 
 class MessageGestor extends Thread {
-    public MessageGestor(Socket origin, Socket receptor) {
-        String message;
+    private ObjectInputStream input;
+    private ObjectOutputStream output;
+    private volatile boolean stop;
+
+    public MessageGestor(Socket input, Socket output) {
+        try {
+            this.input = new ObjectInputStream(input.getInputStream());
+            this.output = new ObjectOutputStream(output.getOutputStream());
+            stop = false;
+        } catch (IOException e) {
+            ;
+        }
+    }
+
+    @Override
+    public void run() {
+        while (!stop) {
+            try {
+                Mensaje message = (Mensaje) input.readObject();
+                System.out.println("Mensaje recibido");
+
+                switch (message.getCommand()) {
+                    case "quit":
+                        end();
+                        break;
+
+                    default:
+                        output.writeObject(message.getMessage());
+                        break;
+                }
+
+            } catch (Exception e) {
+                System.out.println("super rayao");
+                ;
+            }
+
+        }
+
+    }
+
+    public synchronized void end() {
+        stop = true;
     }
 }

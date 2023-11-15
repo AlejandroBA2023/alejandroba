@@ -1,11 +1,13 @@
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Properties;
 
 /**
  * class Servidor
@@ -17,7 +19,8 @@ public class Servidor {
     public static void main(String[] args) {
         ServerSocket srv;
         Socket[] cli = new Socket[2]; // Numero de clientes
-        int PUERTO = 51324; // TODO: Obtener puerto desde un archhivo
+        Properties p = getProperties(); // TODO: Obtener puerto desde un archhivo
+        int PUERTO = Integer.parseInt(p.getProperty("PUERTO"));
 
         try {
             // Se abre el servidor
@@ -66,6 +69,27 @@ public class Servidor {
                     "recuerda que el valor del puerto debe ser entre 0 y 65535");
         }
     }
+
+    /**
+     * getProperties
+     * 
+     * Se encarga de obtener el archivo .properties
+     * 
+     * @return 
+     */
+    private static Properties getProperties(){
+        try { 
+            Properties p = new Properties();
+            FileInputStream fis = new FileInputStream("config.properties");
+            p.load(fis);
+            return p;
+        } catch (FileNotFoundException e) {
+            System.err.println("no se ha encontrado el archivo config.properties");
+        } catch (IOException e) {
+            System.err.println("No se ha podido cargar el archivo config.properties");
+        }
+        return null;
+    }
 }
 
 /**
@@ -78,6 +102,7 @@ class MessageGestor extends Thread {
     private ObjectOutputStream output;
     private volatile boolean stop;
 
+    // Constructor
     public MessageGestor(Socket input, Socket output) {
         try {
             this.input = new ObjectInputStream(input.getInputStream());
@@ -88,6 +113,7 @@ class MessageGestor extends Thread {
         }
     }
 
+    // Metodo Run
     @Override
     public void run() {
         while (!stop) {

@@ -4,6 +4,11 @@ import java.util.Scanner;
 
 public class Cli {
     volatile static boolean pararLectura = false;
+    
+    static Scanner sc;
+    static String mensaje;
+    static boolean exit;
+    static DataOutputStream salida;
 
     public static void main(String argv[]) {
         // Definimos los parámetros de conexión
@@ -15,16 +20,15 @@ public class Cli {
         System.out.println("Soy el cliente e intento conectarme");
         
         try {
-            Scanner sc = new Scanner(System.in);
-            String mensaje;
-            boolean exit = false;
+            sc = new Scanner(System.in);
+            exit = false;
             byte addr[] = { (byte)127, (byte)0, (byte)0, (byte)1 };
             direccion = InetAddress.getByAddress( addr );
             // Nos conectamos al servidor: dirección y puerto
             
             servidor = new Socket(direccion, PUERTO); 
             System.out.println("Conexión realizada con éxito");
-            DataOutputStream salida = new DataOutputStream(servidor.getOutputStream());
+            salida = new DataOutputStream(servidor.getOutputStream());
             Runnable leerMensajes = () -> { 
                 try {
                     DataInputStream entrada = new DataInputStream(servidor.getInputStream());
@@ -34,17 +38,28 @@ public class Cli {
                     }
                 } catch (Exception e){;}
             };
+
+            Runnable writeMessage = () -> {
+                try {
+                    while (!exit) {
+                        mensaje = sc.nextLine();
+
+                        if (mensaje.equals("EXIT")){
+                            exit = true;
+                            pararLectura = true;
+                        } else {
+                            salida.writeUTF(mensaje);
+                        }
+                    }
+                } catch (Exception e) { ; }
+            };
+
+
             new Thread( leerMensajes ).start();
+            new Thread( writeMessage ).start();
 
             while (!exit) {
-                mensaje = sc.nextLine();
-
-                if (mensaje.equals("EXIT")){
-                    exit = true;
-                    pararLectura = true;
-                } else {
-                    salida.writeUTF(mensaje);
-                }
+                
             }
             salida.close();
             sc.close();

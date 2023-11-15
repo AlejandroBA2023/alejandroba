@@ -9,9 +9,9 @@
 - [config.properties](config.properties)
 
 ## COMO FUNCIONA
-Primero, se debe iniciar el **servidor** con el comando `java /UT3/PRACTICA/Servidor.java`.
+Primero, se debe iniciar el **servidor** con el comando `java /UT3/PRATCICA/Servidor.java`.
 
-Una vez iniciado el **servidor**, se puede poner en marcha el inicio de los **clientes**. Puedes hacerlo mediante el comando `java /UT3/PRACTICA/Cliente.java` (recuerda que para su funcionamiento, se deben conectar dos **clientes**).
+Una vez iniciado el **servidor**, se puede poner en marcha el inicio de los **clientes**. Puedes hacerlo mediante el comando `java /UT3/PRATCICA/Cliente.java` (recuerda que para su funcionamiento, se deben conectar dos **clientes**).
 
 En los **clientes**, puedes poner los siguientes comandos:
 - sms: Envia una cadena de texto

@@ -21,22 +21,36 @@ public class Cliente {
 
             System.out.println("Conexion realizada");
 
-            new SendMessages(srv.getOutputStream()).start();
+            SendMessages sendMessages = new SendMessages(srv.getOutputStream());
+            sendMessages.start();
 
             input = new ObjectInputStream(srv.getInputStream());
-            while (!srv.isClosed()) {
+
+            while (sendMessages.isAlive()) {
                 var message = input.readObject();
 
                 if (message.getClass().getName() == new String().getClass().getName()) {
-                    System.out.println("-------------------");
-                    System.out.println("Has recibido un nuevo mensaje: ");
-                    System.out.println(message);
+                    if (message.equals("quit")) {
+                        System.out.println("-------------------");
+                        System.out.println("Se ha cerrado la conexion, pulsa intro para cerrar");
+                        sendMessages.end();
+
+                    } else {
+                        System.out.println("-------------------");
+                        System.out.println("Has recibido un nuevo mensaje: ");
+                        System.out.println(message);
+
+                    }
                 } else {
                     System.out.println("-------------------");
                     System.out.println("Has recibido una persona");
                     System.out.println(((Persona) message).getName());
+
                 }
             }
+
+            input.close();
+            srv.close();
         } catch (Exception e) {
             // TODO: handle exception
         }
@@ -62,7 +76,7 @@ class SendMessages extends Thread {
         String command;
         while (!stop) {
             System.out.println("----------------");
-            System.out.println("Introduce un comando: (sms, quit, persona)");
+            System.out.println("Introduce un comando: (sms, persona, quit)");
             command = sc.nextLine();
             try {
                 switch (command) {
@@ -75,6 +89,7 @@ class SendMessages extends Thread {
 
                     case "quit":
                         output.writeObject(new Mensaje(command, "Se ha cerrado la conexion"));
+                        end();
                         break;
 
                     case "persona":
@@ -90,6 +105,16 @@ class SendMessages extends Thread {
                 ;
             }
 
+        }
+    }
+
+    public synchronized void end() {
+        try {
+            stop = true;
+            output.close();
+            sc.close();
+        } catch (Exception e) {
+            // TODO: handle exception
         }
     }
 }

@@ -1,22 +1,31 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * class Servidor
+ * 
+ * Se encarga de establecer el servidor en el puerto elegido y conectar a los
+ * dos clientes
+ */
 public class Servidor {
     public static void main(String[] args) {
         ServerSocket srv;
-        Socket[] cli = new Socket[2];
-        int PUERTO = 51324;
+        Socket[] cli = new Socket[2]; // Numero de clientes
+        int PUERTO = 51324; // TODO: Obtener puerto desde un archhivo
 
         try {
+            // Se abre el servidor
             srv = new ServerSocket(PUERTO);
             System.out.println("Servidor abierto en el puerto " + PUERTO);
             System.out.println("-----------------------------------------");
 
+            // Se conectan los clientes
             for (int i = 0; i < cli.length; i++) {
                 System.out.println("Esperando al cliente numero " + (i + 1));
                 cli[i] = srv.accept();
@@ -24,6 +33,7 @@ public class Servidor {
                 System.out.println("-----------------------------------------");
             }
 
+            // Hilos para gestionar los mensajes de cada cliente
             MessageGestor[] messageGestors = new MessageGestor[2];
             messageGestors[0] = new MessageGestor(cli[0], cli[1]);
             messageGestors[1] = new MessageGestor(cli[1], cli[0]);
@@ -33,9 +43,10 @@ public class Servidor {
             }
 
             while (messageGestors[0].isAlive() && messageGestors[1].isAlive()) {
-
+                // Este while controla si los hilos siguen vivos
             }
 
+            // Finaliza los hilos restantes
             for (MessageGestor messageGestor : messageGestors) {
                 try {
                     messageGestor.end();
@@ -44,15 +55,24 @@ public class Servidor {
                 }
             }
 
-            for (Socket socket : cli) {
-                ;
-            }
-        } catch (Exception e) {
-            // TODO: handle exception
+            srv.close();
+
+        } catch (IOException e) { // En caso de que no se haya podido abrir el servidor:
+            System.out.println("No se ha podido abrir el servidor...");
+            System.err.println(e.getMessage());
+
+        } catch (IllegalArgumentException e) { // En caso de que el puerto introducido no este en el rango
+            System.out.println("El puerto especificado es erroneo, " +
+                    "recuerda que el valor del puerto debe ser entre 0 y 65535");
         }
     }
 }
 
+/**
+ * class MessageGestor
+ * 
+ * Se encarga de gestionar los mensajes de un cliente a otro
+ */
 class MessageGestor extends Thread {
     private ObjectInputStream input;
     private ObjectOutputStream output;
@@ -73,10 +93,11 @@ class MessageGestor extends Thread {
         while (!stop) {
             try {
                 Mensaje message = (Mensaje) input.readObject();
-                System.out.println("Mensaje recibido");
+                // System.out.println("Mensaje recibido");
 
-                switch (message.getCommand()) {
+                switch (message.getCommand()) { // Compara el mensaje, si es quit, finaliza
                     case "quit":
+                        output.writeObject(message.getCommand());
                         end();
                         break;
 
@@ -86,15 +107,24 @@ class MessageGestor extends Thread {
                 }
 
             } catch (Exception e) {
-                System.out.println("super rayao");
-                ;
+                end();
             }
 
         }
 
     }
 
+    /*
+     * Finaliza el hilo y cierra la entrada y salida
+     */
     public synchronized void end() {
-        stop = true;
+        try {
+            stop = true;
+            input.close();
+            output.close();
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+
     }
 }
